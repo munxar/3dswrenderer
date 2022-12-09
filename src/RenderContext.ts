@@ -42,26 +42,18 @@ export class RenderContext extends Bitmap {
     const topToMiddle = new Edge(minYVert, midYVert);
     const middleToBottom = new Edge(midYVert, maxYVert);
 
-    let left = topToBottom;
-    let right = topToMiddle;
-    if (handedness) {
-      [right, left] = [left, right];
-    }
-    let yStart = topToMiddle.yStart;
-    let yEnd = topToMiddle.yEnd;
-    for (let j = yStart; j < yEnd; j++) {
-      this.drawScanLine(left, right, j);
-      left.step();
-      right.step();
-    }
+    this.scanEdges(topToBottom, topToMiddle, handedness);
+    this.scanEdges(topToBottom, middleToBottom, handedness);
+  }
 
-    left = topToBottom;
-    right = middleToBottom;
+  private scanEdges(a: Edge, b: Edge, handedness: boolean) {
+    let left = a;
+    let right = b;
     if (handedness) {
       [right, left] = [left, right];
     }
-    yStart = middleToBottom.yStart;
-    yEnd = middleToBottom.yEnd;
+    let yStart = b.yStart;
+    let yEnd = b.yEnd;
     for (let j = yStart; j < yEnd; j++) {
       this.drawScanLine(left, right, j);
       left.step();
