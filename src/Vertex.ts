@@ -2,11 +2,10 @@ import { Matrix } from "./Matrix";
 import { Vector } from "./Vector";
 
 export class Vertex {
-  pos: Vector;
-
-  constructor(x = 0, y = 0, z = 0) {
-    this.pos = new Vector(x, y, z);
-  }
+  constructor(
+    public pos: Vector,
+    public color = new Vector(255, 255, 255, 255)
+  ) {}
 
   get x() {
     return this.pos.x;
@@ -17,19 +16,18 @@ export class Vertex {
   }
 
   transform(matrix: Matrix): Vertex {
-    const v = new Vertex();
-    v.pos = matrix.transform(this.pos);
-    return v;
+    return new Vertex(matrix.transform(this.pos), this.color);
   }
 
   perspectiveDivide(): Vertex {
-    const v = new Vertex();
-    v.pos = new Vector(
-      this.pos.x / this.pos.w,
-      this.pos.y / this.pos.w,
-      this.pos.z / this.pos.w,
-      this.pos.w
+    return new Vertex(
+      new Vector(
+        this.pos.x / this.pos.w,
+        this.pos.y / this.pos.w,
+        this.pos.z / this.pos.w,
+        this.pos.w
+      ),
+      this.color
     );
-    return v;
   }
 }

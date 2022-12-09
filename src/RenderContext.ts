@@ -1,5 +1,6 @@
 import { Bitmap } from "./Bitmap";
 import { Edge } from "./Edge";
+import { Gradients } from "./Gradients";
 import { triangleAreaTimesTwo } from "./math";
 import { Matrix } from "./Matrix";
 import { Vertex } from "./Vertex";
@@ -38,15 +39,21 @@ export class RenderContext extends Bitmap {
     maxYVert: Vertex,
     handedness: boolean
   ) {
-    const topToBottom = new Edge(minYVert, maxYVert);
-    const topToMiddle = new Edge(minYVert, midYVert);
-    const middleToBottom = new Edge(midYVert, maxYVert);
+    const gradients = new Gradients(minYVert, midYVert, maxYVert);
+    const topToBottom = new Edge(gradients, minYVert, maxYVert, 0);
+    const topToMiddle = new Edge(gradients, minYVert, midYVert, 0);
+    const middleToBottom = new Edge(gradients, midYVert, maxYVert, 1);
 
-    this.scanEdges(topToBottom, topToMiddle, handedness);
-    this.scanEdges(topToBottom, middleToBottom, handedness);
+    this.scanEdges(gradients, topToBottom, topToMiddle, handedness);
+    this.scanEdges(gradients, topToBottom, middleToBottom, handedness);
   }
 
-  private scanEdges(a: Edge, b: Edge, handedness: boolean) {
+  private scanEdges(
+    gradients: Gradients,
+    a: Edge,
+    b: Edge,
+    handedness: boolean
+  ) {
     let left = a;
     let right = b;
     if (handedness) {
@@ -55,17 +62,33 @@ export class RenderContext extends Bitmap {
     let yStart = b.yStart;
     let yEnd = b.yEnd;
     for (let j = yStart; j < yEnd; j++) {
-      this.drawScanLine(left, right, j);
+      this.drawScanLine(gradients, left, right, j);
       left.step();
       right.step();
     }
   }
 
-  private drawScanLine(left: Edge, right: Edge, j: number) {
+  private drawScanLine(
+    gradients: Gradients,
+    left: Edge,
+    right: Edge,
+    j: number
+  ) {
     const xMin = Math.ceil(left.x);
     const xMax = Math.ceil(right.x);
+    const xPrestep = xMin - left.x;
+
+    const minColor = left.color.add(gradients.colorXStep.mul(xPrestep));
+    const maxColor = right.color.add(gradients.colorXStep.mul(xPrestep));
+
+    let lerpAmp = 0;
+    const lerpStep = 1 / (xMax - xMin);
+
     for (let i = xMin; i < xMax; i++) {
-      this.drawPixel(i, j, 255, 255, 255);
+      const color = minColor.lerp(maxColor, lerpAmp);
+
+      this.drawPixel(i, j, 255 * color.x, 255 * color.y, 255 * color.z);
+      lerpAmp += lerpStep;
     }
   }
 }

@@ -2,6 +2,7 @@ import { deg2rad } from "./math";
 import { Matrix } from "./Matrix";
 import { RenderContext } from "./RenderContext";
 import "./style.css";
+import { Vector } from "./Vector";
 import { Vertex } from "./Vertex";
 
 const canvas = document.createElement("canvas");
@@ -11,9 +12,9 @@ document.body.appendChild(canvas);
 
 const target = new RenderContext(canvas);
 target.clear(0);
-const minYVert = new Vertex(-1, -1, 0);
-const midYVert = new Vertex(0, 1, 0);
-const maxYVert = new Vertex(1, -1, 0);
+const minYVert = new Vertex(new Vector(-1, -1, 0), new Vector(1, 0, 0));
+const midYVert = new Vertex(new Vector(0, 1, 0), new Vector(0, 1, 0));
+const maxYVert = new Vertex(new Vector(1, -1, 0), new Vector(0, 0, 1));
 
 const projection = new Matrix().initPerspective(
   deg2rad(70),
