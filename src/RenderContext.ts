@@ -1,4 +1,4 @@
-import { Bitmap } from "./bitmap";
+import { Bitmap } from "./Bitmap";
 import { Edge } from "./Edge";
 import { triangleAreaTimesTwo } from "./math";
 import { Matrix } from "./Matrix";

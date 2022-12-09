@@ -1,4 +1,4 @@
-import { Bitmap } from "./bitmap";
+import { Bitmap } from "./Bitmap";
 import { deg2rad } from "./math";
 
 class Star {
