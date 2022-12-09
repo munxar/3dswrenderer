@@ -48,7 +48,7 @@ export class RenderContext extends Bitmap {
     const area = triangleAreaTimesTwo(minYVert, maxYVert, midYVert);
     const handedness = area >= 0 ? 1 : 0;
     this.scanConvertTriangle(minYVert, midYVert, maxYVert, handedness);
-    this.fillShape(Math.floor(minYVert.y), Math.floor(maxYVert.y));
+    this.fillShape(Math.ceil(minYVert.y), Math.ceil(maxYVert.y));
   }
 
   private scanConvertTriangle(
@@ -67,19 +67,22 @@ export class RenderContext extends Bitmap {
     maxYVert: Vertex,
     whichSide: number
   ) {
-    const yStart = Math.floor(minYVert.y);
-    const yEnd = Math.floor(maxYVert.y);
-    const xStart = Math.floor(minYVert.x);
-    const xEnd = Math.floor(maxYVert.x);
-    const yDist = yEnd - yStart;
-    const xDist = xEnd - xStart;
+    const yStart = Math.ceil(minYVert.y);
+    const yEnd = Math.ceil(maxYVert.y);
+    const xStart = Math.ceil(minYVert.x);
+    const xEnd = Math.ceil(maxYVert.x);
+
+    const yDist = maxYVert.y - minYVert.y;
+    const xDist = maxYVert.x - minYVert.x;
     if (yDist <= 0) {
       return;
     }
     const xStep = xDist / yDist;
-    let curX = xStart;
+    const yPrestep = yStart - minYVert.y;
+    let curX = minYVert.x + yPrestep * xStep;
+
     for (let j = yStart; j < yEnd; j++) {
-      this.scanBuffer[j * 2 + whichSide] = Math.floor(curX);
+      this.scanBuffer[j * 2 + whichSide] = Math.ceil(curX);
       curX += xStep;
     }
   }

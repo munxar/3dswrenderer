@@ -31,7 +31,7 @@ function update(tick: number) {
 
   rotCounter += delta;
   const translation = new Matrix().initTranslation(0, 0, 3);
-  const rotation = new Matrix().initRotation(0, 1, 0, rotCounter);
+  const rotation = new Matrix().initRotation(0, -1, 0, rotCounter);
   const transform = projection.mul(translation.mul(rotation));
   target.clear(0);
   target.fillTriangle(
