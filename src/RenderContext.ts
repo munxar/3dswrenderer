@@ -72,15 +72,19 @@ export class RenderContext extends Bitmap {
     const xDist = right.x - left.x;
     const texCoordXXStep = (right.texCoordX - left.texCoordX) / xDist;
     const texCoordYXStep = (right.texCoordY - left.texCoordY) / xDist;
+    const oneOverZXStep = (right.oneOverZ - left.oneOverZ) / xDist;
 
     let texCoordX = left.texCoordX + texCoordXXStep * xPrestep;
     let texCoordY = left.texCoordY + texCoordYXStep * xPrestep;
+    let oneOverZ = left.oneOverZ + oneOverZXStep * xPrestep;
 
     for (let i = xMin; i < xMax; i++) {
-      const srcX = Math.floor(texCoordX * (texture.getWidth() - 1) + 0.5);
-      const srcY = Math.floor(texCoordY * (texture.getHeight() - 1) + 0.5);
+      const z = 1 / oneOverZ;
+      const srcX = Math.floor(texCoordX * z * (texture.getWidth() - 1) + 0.5);
+      const srcY = Math.floor(texCoordY * z * (texture.getHeight() - 1) + 0.5);
 
       this.copyPixel(i, j, srcX, srcY, texture);
+      oneOverZ += oneOverZXStep;
       texCoordX += texCoordXXStep;
       texCoordY += texCoordYXStep;
     }

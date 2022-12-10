@@ -11,6 +11,8 @@ export class Edge {
   texCoordXStep: number;
   texCoordY: number;
   texCoordYStep: number;
+  oneOverZ: number;
+  oneOverZStep: number;
 
   constructor(
     gradients: Gradients,
@@ -41,11 +43,19 @@ export class Edge {
       gradients.texCoordYYStep * yPrestep;
     this.texCoordYStep =
       gradients.texCoordYYStep + gradients.texCoordYXStep * this.xStep;
+
+    this.oneOverZ =
+      gradients.oneOverZ[minYVertIndex] +
+      gradients.oneOverZXStep * xPrestep +
+      gradients.oneOverZYStep * yPrestep;
+    this.oneOverZStep =
+      gradients.oneOverZYStep + gradients.oneOverZXStep * this.xStep;
   }
 
   step() {
     this.x += this.xStep;
     this.texCoordX += this.texCoordXStep;
     this.texCoordY += this.texCoordYStep;
+    this.oneOverZ += this.oneOverZStep;
   }
 }
