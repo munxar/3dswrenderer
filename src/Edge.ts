@@ -6,6 +6,7 @@ export class Edge {
   xStep: number;
   yStart: number;
   yEnd: number;
+
   texCoordX: number;
   texCoordXStep: number;
   texCoordY: number;

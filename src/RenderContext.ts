@@ -45,17 +45,11 @@ export class RenderContext extends Bitmap {
     const topToMiddle = new Edge(gradients, minYVert, midYVert, 0);
     const middleToBottom = new Edge(gradients, midYVert, maxYVert, 1);
 
-    this.scanEdges(gradients, topToBottom, topToMiddle, handedness, texture);
-    this.scanEdges(gradients, topToBottom, middleToBottom, handedness, texture);
+    this.scanEdges(topToBottom, topToMiddle, handedness, texture);
+    this.scanEdges(topToBottom, middleToBottom, handedness, texture);
   }
 
-  private scanEdges(
-    gradients: Gradients,
-    a: Edge,
-    b: Edge,
-    handedness: boolean,
-    texture: Bitmap
-  ) {
+  private scanEdges(a: Edge, b: Edge, handedness: boolean, texture: Bitmap) {
     let left = a;
     let right = b;
     if (handedness) {
@@ -64,33 +58,31 @@ export class RenderContext extends Bitmap {
     let yStart = b.yStart;
     let yEnd = b.yEnd;
     for (let j = yStart; j < yEnd; j++) {
-      this.drawScanLine(gradients, left, right, j, texture);
+      this.drawScanLine(left, right, j, texture);
       left.step();
       right.step();
     }
   }
 
-  private drawScanLine(
-    gradients: Gradients,
-    left: Edge,
-    right: Edge,
-    j: number,
-    texture: Bitmap
-  ) {
+  private drawScanLine(left: Edge, right: Edge, j: number, texture: Bitmap) {
     const xMin = Math.ceil(left.x);
     const xMax = Math.ceil(right.x);
     const xPrestep = xMin - left.x;
 
-    let texCoordX = left.texCoordX + gradients.texCoordXXStep * xPrestep;
-    let texCoordY = left.texCoordY + gradients.texCoordYXStep * xPrestep;
+    const xDist = right.x - left.x;
+    const texCoordXXStep = (right.texCoordX - left.texCoordX) / xDist;
+    const texCoordYXStep = (right.texCoordY - left.texCoordY) / xDist;
+
+    let texCoordX = left.texCoordX + texCoordXXStep * xPrestep;
+    let texCoordY = left.texCoordY + texCoordYXStep * xPrestep;
 
     for (let i = xMin; i < xMax; i++) {
       const srcX = Math.floor(texCoordX * (texture.getWidth() - 1) + 0.5);
-      const srcY = Math.floor(texCoordY * (texture.getWidth() - 1) + 0.5);
+      const srcY = Math.floor(texCoordY * (texture.getHeight() - 1) + 0.5);
 
       this.copyPixel(i, j, srcX, srcY, texture);
-      texCoordX += gradients.texCoordXXStep;
-      texCoordY += gradients.texCoordYXStep;
+      texCoordX += texCoordXXStep;
+      texCoordY += texCoordYXStep;
     }
   }
 }
