@@ -1,3 +1,4 @@
+import { Bitmap } from "./Bitmap";
 import { deg2rad } from "./math";
 import { Matrix } from "./Matrix";
 import { RenderContext } from "./RenderContext";
@@ -9,12 +10,27 @@ const canvas = document.createElement("canvas");
 canvas.width = 600;
 canvas.height = 400;
 document.body.appendChild(canvas);
-
+const bitmap = document.createElement("canvas");
+bitmap.width = 32;
+bitmap.height = 32;
+const texture = new Bitmap(bitmap);
 const target = new RenderContext(canvas);
-target.clear(0);
-const minYVert = new Vertex(new Vector(-1, -1, 0), new Vector(1, 0, 0));
-const midYVert = new Vertex(new Vector(0, 1, 0), new Vector(0, 1, 0));
-const maxYVert = new Vertex(new Vector(1, -1, 0), new Vector(0, 0, 1));
+
+for (let j = 0; j < texture.getHeight(); j++) {
+  for (let i = 0; i < texture.getWidth(); i++) {
+    texture.drawPixel(
+      i,
+      j,
+      Math.floor(Math.random() * 255 + 0.5),
+      Math.floor(Math.random() * 255 + 0.5),
+      Math.floor(Math.random() * 255 + 0.5)
+    );
+  }
+}
+
+const minYVert = new Vertex(new Vector(-1, -1, 0), new Vector(0, 0, 0, 0));
+const midYVert = new Vertex(new Vector(0, 1, 0), new Vector(0.5, 1, 0, 0));
+const maxYVert = new Vertex(new Vector(1, -1, 0), new Vector(1, 0, 0, 0));
 
 const projection = new Matrix().initPerspective(
   deg2rad(70),
@@ -38,7 +54,8 @@ function update(tick: number) {
   target.fillTriangle(
     maxYVert.transform(transform),
     midYVert.transform(transform),
-    minYVert.transform(transform)
+    minYVert.transform(transform),
+    texture
   );
 
   target.swap();

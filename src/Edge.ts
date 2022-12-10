@@ -1,5 +1,4 @@
 import { Gradients } from "./Gradients";
-import { Vector } from "./Vector";
 import { Vertex } from "./Vertex";
 
 export class Edge {
@@ -7,8 +6,10 @@ export class Edge {
   xStep: number;
   yStart: number;
   yEnd: number;
-  color: Vector;
-  colorStep: Vector;
+  texCoordX: number;
+  texCoordXStep: number;
+  texCoordY: number;
+  texCoordYStep: number;
 
   constructor(
     gradients: Gradients,
@@ -18,24 +19,32 @@ export class Edge {
   ) {
     this.yStart = Math.ceil(minYVert.y);
     this.yEnd = Math.ceil(maxYVert.y);
+
     const yDist = maxYVert.y - minYVert.y;
     const xDist = maxYVert.x - minYVert.x;
-    const yPrestep = this.yStart - minYVert.y;
 
+    const yPrestep = this.yStart - minYVert.y;
     this.xStep = xDist / yDist;
     this.x = minYVert.x + yPrestep * this.xStep;
-
     const xPrestep = this.x - minYVert.x;
-    this.color = gradients.color[minYVertIndex]
-      .add(gradients.colorYStep.mul(yPrestep))
-      .add(gradients.colorXStep.mul(xPrestep));
-    this.colorStep = gradients.colorYStep.add(
-      gradients.colorXStep.mul(this.xStep)
-    );
+
+    this.texCoordX =
+      gradients.texCoordX[minYVertIndex] +
+      gradients.texCoordXXStep * xPrestep +
+      gradients.texCoordXYStep * yPrestep;
+    this.texCoordXStep =
+      gradients.texCoordXYStep + gradients.texCoordXXStep * this.xStep;
+    this.texCoordY =
+      gradients.texCoordY[minYVertIndex] +
+      gradients.texCoordYXStep * xPrestep +
+      gradients.texCoordYYStep * yPrestep;
+    this.texCoordYStep =
+      gradients.texCoordYYStep + gradients.texCoordYXStep * this.xStep;
   }
 
   step() {
     this.x += this.xStep;
-    this.color = this.color.add(this.colorStep);
+    this.texCoordX += this.texCoordXStep;
+    this.texCoordY += this.texCoordYStep;
   }
 }

@@ -10,7 +10,7 @@ export class RenderContext extends Bitmap {
     super(canvas);
   }
 
-  fillTriangle(v1: Vertex, v2: Vertex, v3: Vertex) {
+  fillTriangle(v1: Vertex, v2: Vertex, v3: Vertex, texture: Bitmap) {
     const screenSpaceTransform = new Matrix().screenSpaceTransform(
       this.getWidth() / 2,
       this.getHeight() / 2
@@ -30,29 +30,31 @@ export class RenderContext extends Bitmap {
       [midYVert, maxYVert] = [maxYVert, midYVert];
     }
     const handedness = triangleAreaTimesTwo(minYVert, maxYVert, midYVert) >= 0;
-    this.scanTriangle(minYVert, midYVert, maxYVert, handedness);
+    this.scanTriangle(minYVert, midYVert, maxYVert, handedness, texture);
   }
 
   private scanTriangle(
     minYVert: Vertex,
     midYVert: Vertex,
     maxYVert: Vertex,
-    handedness: boolean
+    handedness: boolean,
+    texture: Bitmap
   ) {
     const gradients = new Gradients(minYVert, midYVert, maxYVert);
     const topToBottom = new Edge(gradients, minYVert, maxYVert, 0);
     const topToMiddle = new Edge(gradients, minYVert, midYVert, 0);
     const middleToBottom = new Edge(gradients, midYVert, maxYVert, 1);
 
-    this.scanEdges(gradients, topToBottom, topToMiddle, handedness);
-    this.scanEdges(gradients, topToBottom, middleToBottom, handedness);
+    this.scanEdges(gradients, topToBottom, topToMiddle, handedness, texture);
+    this.scanEdges(gradients, topToBottom, middleToBottom, handedness, texture);
   }
 
   private scanEdges(
     gradients: Gradients,
     a: Edge,
     b: Edge,
-    handedness: boolean
+    handedness: boolean,
+    texture: Bitmap
   ) {
     let left = a;
     let right = b;
@@ -62,7 +64,7 @@ export class RenderContext extends Bitmap {
     let yStart = b.yStart;
     let yEnd = b.yEnd;
     for (let j = yStart; j < yEnd; j++) {
-      this.drawScanLine(gradients, left, right, j);
+      this.drawScanLine(gradients, left, right, j, texture);
       left.step();
       right.step();
     }
@@ -72,23 +74,23 @@ export class RenderContext extends Bitmap {
     gradients: Gradients,
     left: Edge,
     right: Edge,
-    j: number
+    j: number,
+    texture: Bitmap
   ) {
     const xMin = Math.ceil(left.x);
     const xMax = Math.ceil(right.x);
     const xPrestep = xMin - left.x;
 
-    const minColor = left.color.add(gradients.colorXStep.mul(xPrestep));
-    const maxColor = right.color.add(gradients.colorXStep.mul(xPrestep));
-
-    let lerpAmp = 0;
-    const lerpStep = 1 / (xMax - xMin);
+    let texCoordX = left.texCoordX + gradients.texCoordXXStep * xPrestep;
+    let texCoordY = left.texCoordY + gradients.texCoordYXStep * xPrestep;
 
     for (let i = xMin; i < xMax; i++) {
-      const color = minColor.lerp(maxColor, lerpAmp);
+      const srcX = Math.floor(texCoordX * (texture.getWidth() - 1) + 0.5);
+      const srcY = Math.floor(texCoordY * (texture.getWidth() - 1) + 0.5);
 
-      this.drawPixel(i, j, 255 * color.x, 255 * color.y, 255 * color.z);
-      lerpAmp += lerpStep;
+      this.copyPixel(i, j, srcX, srcY, texture);
+      texCoordX += gradients.texCoordXXStep;
+      texCoordY += gradients.texCoordYXStep;
     }
   }
 }

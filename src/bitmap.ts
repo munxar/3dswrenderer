@@ -37,6 +37,23 @@ export class Bitmap {
     this.image.data[index + 3] = alpha;
   }
 
+  copyPixel(
+    destX: number,
+    destY: number,
+    srcX: number,
+    srcY: number,
+    src: Bitmap
+  ) {
+    const destIndex =
+      (Math.floor(destX) + Math.floor(destY) * this.getWidth()) * 4;
+    const srcIndex = (Math.floor(srcX) + Math.floor(srcY) * src.getWidth()) * 4;
+
+    this.image.data[destIndex] = src.image.data[srcIndex];
+    this.image.data[destIndex + 1] = src.image.data[srcIndex + 1];
+    this.image.data[destIndex + 2] = src.image.data[srcIndex + 2];
+    this.image.data[destIndex + 3] = src.image.data[srcIndex + 3];
+  }
+
   swap() {
     this.context.putImageData(this.image, 0, 0);
   }

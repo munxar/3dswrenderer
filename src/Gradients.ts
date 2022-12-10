@@ -1,10 +1,13 @@
-import { Vector } from "./Vector";
 import { Vertex } from "./Vertex";
 
 export class Gradients {
-  color: Vector[];
-  colorXStep: Vector;
-  colorYStep: Vector;
+  texCoordX: number[];
+  texCoordY: number[];
+
+  texCoordXXStep: number;
+  texCoordXYStep: number;
+  texCoordYXStep: number;
+  texCoordYYStep: number;
 
   constructor(minYVert: Vertex, midYVert: Vertex, maxYVert: Vertex) {
     const oneOverdx =
@@ -13,18 +16,33 @@ export class Gradients {
         (minYVert.x - maxYVert.x) * (midYVert.y - maxYVert.y));
 
     const oneOverdy = -oneOverdx;
-    this.color = [minYVert.color, midYVert.color, maxYVert.color];
 
-    this.colorXStep = this.color[1]
-      .sub(this.color[2])
-      .mul(minYVert.y - maxYVert.y)
-      .sub(this.color[0].sub(this.color[2]).mul(midYVert.y - maxYVert.y))
-      .mul(oneOverdx);
+    this.texCoordX = [
+      minYVert.texCoords.x,
+      midYVert.texCoords.x,
+      maxYVert.texCoords.x,
+    ];
+    this.texCoordY = [
+      minYVert.texCoords.y,
+      midYVert.texCoords.y,
+      maxYVert.texCoords.y,
+    ];
 
-    this.colorYStep = this.color[1]
-      .sub(this.color[2])
-      .mul(minYVert.x - maxYVert.x)
-      .sub(this.color[0].sub(this.color[2]).mul(midYVert.x - maxYVert.x))
-      .mul(oneOverdy);
+    this.texCoordXXStep =
+      ((this.texCoordX[1] - this.texCoordX[2]) * (minYVert.y - maxYVert.y) -
+        (this.texCoordX[0] - this.texCoordX[2]) * (midYVert.y - maxYVert.y)) *
+      oneOverdx;
+    this.texCoordXYStep =
+      ((this.texCoordX[1] - this.texCoordX[2]) * (minYVert.x - maxYVert.x) -
+        (this.texCoordX[0] - this.texCoordX[2]) * (midYVert.x - maxYVert.x)) *
+      oneOverdy;
+    this.texCoordYXStep =
+      ((this.texCoordY[1] - this.texCoordY[2]) * (minYVert.y - maxYVert.y) -
+        (this.texCoordY[0] - this.texCoordY[2]) * (midYVert.y - maxYVert.y)) *
+      oneOverdx;
+    this.texCoordYYStep =
+      ((this.texCoordY[1] - this.texCoordY[2]) * (minYVert.x - maxYVert.x) -
+        (this.texCoordY[0] - this.texCoordY[2]) * (midYVert.x - maxYVert.x)) *
+      oneOverdy;
   }
 }

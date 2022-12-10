@@ -2,10 +2,7 @@ import { Matrix } from "./Matrix";
 import { Vector } from "./Vector";
 
 export class Vertex {
-  constructor(
-    public pos: Vector,
-    public color = new Vector(255, 255, 255, 255)
-  ) {}
+  constructor(public pos: Vector, public texCoords: Vector) {}
 
   get x() {
     return this.pos.x;
@@ -16,7 +13,7 @@ export class Vertex {
   }
 
   transform(matrix: Matrix): Vertex {
-    return new Vertex(matrix.transform(this.pos), this.color);
+    return new Vertex(matrix.transform(this.pos), this.texCoords);
   }
 
   perspectiveDivide(): Vertex {
@@ -27,7 +24,7 @@ export class Vertex {
         this.pos.z / this.pos.w,
         this.pos.w
       ),
-      this.color
+      this.texCoords
     );
   }
 }
