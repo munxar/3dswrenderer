@@ -11,25 +11,12 @@ canvas.width = 600;
 canvas.height = 400;
 document.body.appendChild(canvas);
 const bitmap = document.createElement("canvas");
-bitmap.width = 32;
-bitmap.height = 32;
 const texture = new Bitmap(bitmap);
+await texture.load("/bricks.jpg");
 const target = new RenderContext(canvas);
 
-for (let j = 0; j < texture.getHeight(); j++) {
-  for (let i = 0; i < texture.getWidth(); i++) {
-    texture.drawPixel(
-      i,
-      j,
-      Math.floor(Math.random() * 255 + 0.5),
-      Math.floor(Math.random() * 255 + 0.5),
-      Math.floor(Math.random() * 255 + 0.5)
-    );
-  }
-}
-
 const minYVert = new Vertex(new Vector(-1, -1, 0), new Vector(0, 0, 0, 0));
-const midYVert = new Vertex(new Vector(0, 1, 0), new Vector(0.5, 1, 0, 0));
+const midYVert = new Vertex(new Vector(0, 1, 0), new Vector(0, 1, 0, 0));
 const maxYVert = new Vertex(new Vector(1, -1, 0), new Vector(1, 0, 0, 0));
 
 const projection = new Matrix().initPerspective(

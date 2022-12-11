@@ -2,8 +2,8 @@ export class Bitmap {
   private image: ImageData;
   private context: CanvasRenderingContext2D;
 
-  constructor(canvas: HTMLCanvasElement) {
-    this.context = canvas.getContext("2d")!;
+  constructor(private canvas: HTMLCanvasElement) {
+    this.context = canvas.getContext("2d", { willReadFrequently: true })!;
     this.image = this.context.getImageData(0, 0, canvas.width, canvas.height);
   }
   getWidth() {
@@ -56,5 +56,28 @@ export class Bitmap {
 
   swap() {
     this.context.putImageData(this.image, 0, 0);
+  }
+
+  async load(src: string) {
+    return new Promise<void>((resolve, reject) => {
+      const img = new Image();
+      img.addEventListener(
+        "load",
+        () => {
+          this.canvas.width = img.width;
+          this.canvas.height = img.height;
+          this.context.drawImage(img, 0, 0);
+          this.image = this.context.getImageData(
+            0,
+            0,
+            this.canvas.width,
+            this.canvas.height
+          );
+          resolve();
+        },
+        false
+      );
+      img.src = src;
+    });
   }
 }
